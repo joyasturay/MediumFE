@@ -8,10 +8,7 @@ import axios from "axios";
 type SignUp = z.infer<typeof signUpSchema>;
 
 export const Auth = ({ type }: { type: 'signup' | 'signin' }) => {
-  const navigate = useNavigate();                 
-  const token = typeof window !== 'undefined'
-    ? localStorage.getItem('token')
-    : null;                                        
+  const navigate = useNavigate();                                                       
 
   const [inputs, setInputs] = useState<SignUp>({
     email: '',
