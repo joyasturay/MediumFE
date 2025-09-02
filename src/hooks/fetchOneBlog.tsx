@@ -7,7 +7,9 @@ export const useFetchBlog = ({id}:{id:string}) => {
         id: string;
         title: string;
         content: string;
+        authorId:String;
         author: {
+
             name: string;
             email: string;
         };

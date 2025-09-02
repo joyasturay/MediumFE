@@ -4,8 +4,25 @@ import { useParams } from "react-router-dom";
 import { Avatar } from "../components/BlogCard";
 import { DeleteBlog } from "../hooks/DeleteBlog";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+interface TokenPayload {
+  id: string;
+}
 export function Blog() {
   const navigate = useNavigate();
+  const token = typeof window !== 'undefined'
+    ? localStorage.getItem('token')
+    : null;
+  let currentUserId: string | null = null;
+  const authToken = token || localStorage.getItem('token');
+  if (authToken) {
+    try {
+      const decoded = jwtDecode<TokenPayload>(authToken);
+      currentUserId = decoded.id;
+    } catch (err) {
+      console.error("Invalid token:", err);
+    }
+  }
   const { id } = useParams<{ id: string }>();
   const {loading, blog} = useFetchBlog({id:id!});
   if (loading) {
@@ -53,16 +70,30 @@ export function Blog() {
     </div>
 
       <p className="text-lg leading-7">{blog.content}</p>
-      <div className="mt-3">
-      <button  className="text-md bg-red-500 text-white px-4 py-2 rounded-full"onClick={async (e)=>{
-      e.preventDefault();
-      await DeleteBlog({id:id!});
+     <div className="mt-3">
+  {currentUserId === blog.authorId && (
+    <button
+      className="text-md bg-red-500 text-white px-4 py-2 rounded-full"
+      onClick={async (e) => {
+        e.preventDefault();
+        await DeleteBlog({ id: id! });
+        navigate("/blogs");
+      }}
+    >
+      Delete Blog
+    </button>
+  )}
+
+  <button
+    className="text-md bg-green-500 text-white px-4 py-2 rounded-full ml-2"
+    onClick={() => {
       navigate("/blogs");
-    }}>Delete Blog</button>
-    <button  className="text-md bg-green-500 text-white px-4 py-2 rounded-full ml-2" onClick={()=>{
-      navigate("/blogs");
-    }}>Back to Blogs</button>
-    </div>
+    }}
+  >
+    Back to Blogs
+  </button>
+</div>
+
     </div>
     </>
   )
